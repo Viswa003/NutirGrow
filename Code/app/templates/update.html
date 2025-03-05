@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block body %}
+<div class="app-container">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <h3 class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10Z"/><path d="M12 12a3 3 0 1 0 3 3 3 3 0 0 0-3-3Z"/><path d="M12 7v2"/><path d="m4.2 10.4 1.7 1"/><path d="m18.1 10.4-1.7 1"/></svg>
+                Nutri<span>Grow</span>
+            </h3>
+        </div>
+    </nav>
+
+    <!-- Results Section -->
+    <main class="results-content">
+        <div class="results-container">
+            <div class="header-section">
+                <h2 class="results-title">Crop Analysis Results</h2>
+                <p class="results-subtitle">Detailed recommendations and weather forecast for optimal fertilization</p>
+            </div>
+
+            <!-- Input Summary -->
+            <div class="summary-card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <h3>Crop Details</h3>
+                </div>
+                <div class="summary-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Crop Type</span>
+                        <span class="detail-value">{{FORM_DATA['crop']}}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value">{{FORM_DATA['city']}}, {{FORM_DATA['state']}}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if CALL_SUCCESS|length == 1 %}
+            <!-- NPK Recommendations -->
+            <div class="npk-card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    <h3>Required Nutrient Ratio</h3>
+                </div>
+                <div class="npk-grid">
+                    <div class="npk-item nitrogen">
+                        <div class="nutrient-icon">N</div>
+                        <h4>Nitrogen</h4>
+                        <p class="nutrient-value">{{ NPK[0]['Label_N'] }}</p>
+                        <p class="nutrient-desc">Essential for leaf growth and plant vigor</p>
+                    </div>
+                    <div class="npk-item phosphorus">
+                        <div class="nutrient-icon">P</div>
+                        <h4>Phosphorus</h4>
+                        <p class="nutrient-value">{{ NPK[0]['Label_P'] }}</p>
+                        <p class="nutrient-desc">Promotes root development and flowering</p>
+                    </div>
+                    <div class="npk-item potassium">
+                        <div class="nutrient-icon">K</div>
+                        <h4>Potassium</h4>
+                        <p class="nutrient-value">{{ NPK[0]['Label_K'] }}</p>
+                        <p class="nutrient-desc">Improves crop quality and disease resistance</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendation Details -->
+            <div class="recommendation-card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                    <h3>Fertilization Recommendations</h3>
+                </div>
+                <div class="recommendation-content">
+                    <div class="recommendation-status {{ POPUP_DATA[0][0]|lower }}">
+                        <span class="status-indicator"></span>
+                        {{ POPUP_DATA[0][0]}}
+                    </div>
+                    <h4 class="recommendation-heading">{{ POPUP_DATA[0][1]}}</h4>
+                    <p class="recommendation-text">{{ POPUP_DATA[0][2]}}</p>
+                </div>
+            </div>
+
+            <!-- Weather Forecast -->
+            <div class="weather-card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M22 10a3 3 0 0 0-3-3h-2.207a5.502 5.502 0 0 0-10.702.5"/></svg>
+                    <h3>7-Day Weather Forecast</h3>
+                </div>
+                
+                <!-- Weather Graph -->
+                <div class="weather-graph-container">
+                    <canvas id="weatherChart"></canvas>
+                </div>
+
+                <!-- Weather Details Grid -->
+                <div class="weather-grid">
+                    {% for day in SEVEN_DAYS %}
+                    <div class="weather-day">
+                        <div class="weather-date">{{day['Date']}}</div>
+                        <div class="weather-metrics">
+                            <div class="metric">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="metric-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>
+                                <span>{{day['Temperature']}}°C</span>
+                            </div>
+                            <div class="metric">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="metric-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+                                <span>{{day['Relative Humidity']}}%</span>
+                            </div>
+                            <div class="metric">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="metric-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>
+                                <span>{{day['Rainfall']}}mm</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if CALL_SUCCESS|length == 0 %}
+            <div class="error-card">
+                <svg xmlns="http://www.w3.org/2000/svg" class="error-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <h3>Data Not Available</h3>
+                <p>We couldn't find weather data for this location. Please try a different city.</p>
+            </div>
+            {% endif %}
+
+            <a href="/" class="back-btn">
+                <button type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                    Back to Home
+                </button>
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h4>Viswa Teja</h4>
+                    <ul>
+                        <li>21B81A6762</li>
+                        <li>Department of Computer Science (Data Science)</li>
+                        <li>CVR College of Engineering</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Vishnu</h4>
+                    <ul>
+                        <li>21B81A6761</li>
+                        <li>Department of Computer Science (Data Science)</li>
+                        <li>CVR College of Engineering</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Aman Chanda</h4>
+                    <ul>
+                        <li>21B81A6701</li>
+                        <li>Department of Computer Science (Data Science)</li>
+                        <li>CVR College of Engineering</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2024 NutriGrow. Helping farmers make informed decisions.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+{% if CALL_SUCCESS|length == 1 %}
+<script>
+    // Extract weather data
+    const weatherData = {{ SEVEN_DAYS|tojson }};
+    
+    // Prepare data for the chart
+    const dates = weatherData.map(day => day['Date']);
+    const temperatures = weatherData.map(day => parseFloat(day['Temperature']));
+    const humidity = weatherData.map(day => parseFloat(day['Relative Humidity']));
+    const rainfall = weatherData.map(day => parseFloat(day['Rainfall']));
+
+    // Create the chart
+    const ctx = document.getElementById('weatherChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [
+                {
+                    label: 'Temperature (°C)',
+                    data: temperatures,
+                    borderColor: '#b91c1c',
+                    backgroundColor: 'rgba(185, 28, 28, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Humidity (%)',
+                    data: humidity,
+                    borderColor: '#1d4ed8',
+                    backgroundColor: 'rgba(29, 78, 216, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y1'
+                },
+                {
+                    label: 'Rainfall (mm)',
+                    data: rainfall,
+                    borderColor: '#3b8132',
+                    backgroundColor: 'rgba(59, 129, 50, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y2'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#1f2937',
+                    bodyColor: '#4b5563',
+                    borderColor: '#e5e7eb',
+                    borderWidth: 1,
+                    padding: 12,
+                    bodyFont: {
+                        family: "'Inter', sans-serif"
+                    },
+                    titleFont: {
+                        family: "'Inter', sans-serif",
+                        weight: 600
+                    },
+                    backdropFilter: 'blur(10px)'
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Temperature (°C)',
+                        font: {
+                            family: "'Inter', sans-serif",
+                            weight: 500
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0,0,0,0.05)'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Humidity (%)',
+                        font: {
+                            family: "'Inter', sans-serif",
+                            weight: 500
+                        }
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                },
+                y2: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Rainfall (mm)',
+                        font: {
+                            family: "'Inter', sans-serif",
+                            weight: 500
+                        }
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0,0,0,0.05)'
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

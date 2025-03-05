@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+<div class="app-container">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <h3 class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10Z"/><path d="M12 12a3 3 0 1 0 3 3 3 3 0 0 0-3-3Z"/><path d="M12 7v2"/><path d="m4.2 10.4 1.7 1"/><path d="m18.1 10.4-1.7 1"/></svg>
+                Nutri<span>Grow</span>
+            </h3>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1 class="hero-title">Smart Fertilization for Better Yields</h1>
+        <p class="hero-subtitle">Get personalized recommendations based on crop type, location, and real-time weather data</p>
+    </div>
+
+    <!-- Main Form Section -->
+    <main class="main-content">
+        <div class="home-container">
+            <div class="form-container">
+                <h2 class="form-title">Enter Your Details</h2>
+                
+                <form action="{{ url_for('processing') }}" method="post" class="input-form">
+                    <div class="form-group">
+                        <label for="crop">Select Crop</label>
+                        <select class="input-field" name="crop" onchange="print_crop('crop',this.selectedIndex);" id="sts" required>
+                            <option value="">Choose a crop</option>
+                        </select>
+                        <script>print_crop("sts");</script>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state">Select State</label>
+                        <select class="input-field" onchange="print_city('state',this.selectedIndex);" name="state" id="s" required>
+                            <option value="">Choose a state</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city">Select City</label>
+                        <select class="input-field" name="city" id="state" required>
+                            <option value="">Choose a city</option>
+                        </select>
+                        <script>print_state("s");</script>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        Get Recommendations
+                    </button>
+                </form>
+            </div>
+            
+            <div class="info-container">
+                <div class="info-image">
+                    <div class="info-overlay">
+                        <h3>Why NutriGrow?</h3>
+                        <p>Our smart system analyzes weather patterns and soil conditions to provide precise fertilization recommendations, helping you maximize yields while minimizing environmental impact.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h4>Viswa Teja</h4>
+                    <ul>
+                        <li>21B81A6762</li>
+                        <li>Department of Computer Science (Data Science)</li>
+                        <li>CVR College of Engineering</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Vishnu</h4>
+                    <ul>
+                        <li>21B81A6761</li>
+                        <li>Department of Computer Science (Data Science)</li>
+                        <li>CVR College of Engineering</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Aman Chanda</h4>
+                    <ul>
+                        <li>21B81A6701</li>
+                        <li>Department of Computer Science (Data Science)</li>
+                        <li>CVR College of Engineering</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2024 NutriGrow. Helping farmers make informed decisions.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+{% endblock %}
