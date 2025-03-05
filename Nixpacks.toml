@@ -1,9 +1,2 @@
 [phases.setup]
-nixPkgs = ["libxml2", "libxslt", "gcc", "python3Packages.pip"]
-
-[phases.install]
-cmds = [
-  "pip install --upgrade pip",
-  "pip install --no-cache-dir --force-reinstall lxml",
-  "pip install -r requirements.txt"
-]
+nixPkgs = ["libxml2", "libxslt"]
